@@ -1,0 +1,24 @@
+name: Commercial QA scorecard and skill checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Verify skill links and privacy
+        run: python -B scripts/verify_public_hygiene.py
+      - name: Run scorecard grading unit tests
+        run: python -B -m unittest discover -s tests -p "test_*.py" -v

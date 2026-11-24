@@ -1,0 +1,5 @@
+interface:
+  display_name: "Blender 建模商业质量审核"
+  short_description: "按五级商业梯度和百分制成绩单独立盲审 Blender 模型与资产质量"
+  default_prompt: "按 L2 Blender 商业标准级对目标模型执行阶段 0 探针检查、看图包盲审并输出百分制成绩单。"
+  default_prompt: "Use $blender-modeling-review for this Blender workflow task."
