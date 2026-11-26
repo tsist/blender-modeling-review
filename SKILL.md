@@ -60,10 +60,15 @@ New-Item -ItemType Directory -Path $jobs -Force | Out-Null
 
 ### 第二步：拍标准看图包（阶段 1）
 
-G1 与 G2 红线过关后，按阶段生成固定看图包并解码亲眼查看（传进会话控制在最长边 2048 像素以内）：
+G1 与 G2 红线过关后，按阶段生成固定看图包并解码亲眼查看（优先用 `blenderctl preview` 隔离桌面真视口直出，默认已控制在 2048 像素以内且严格对齐正面 `-Y`；纯离线无桌面环境可回退 `model inspect --review-grid`）：
 
-- **白模看图包**：正、侧、背、四分之三等轴四向轮廓图 + 同机位「控制笼线框 / 细分白模 / 条形移动高光」拼图（通过 `model inspect --review-grid` 生成）+ 关键搭接处近景特写。
-- **成品看图包**：四向轮廓与关键细节特写 + 贴标准 UV 棋盘格图 + 同机位「中性光可编辑节点版 / 干净工程纯贴图重建版 / EEVEE Next 光追」三联对照图。
+- **白模看图包**：
+  - Quad 四视角实体+半透明线框：`& $ctl --jobs-dir $jobs --compact preview $targetBlend --mode solid_wire --layout quad`
+  - 曲面流线与法线翻面联检：`& $ctl --jobs-dir $jobs --compact preview $targetBlend --compare-modes solid,solid_wire,matcap,face_orientation --view front_3q`
+  - 局部搭接件特写：`--objects <对象名>`（默认留上下文查穿插，加 `--isolate` 独显查拓扑）与 `--mode wireframe --xray` 查内部穿插。
+- **成品看图包**：
+  - 同机位四阶段联检板：`& $ctl --jobs-dir $jobs --compact preview $targetBlend --compare-modes solid,solid_wire,material,rendered --view front_3q`
+  - 四向环绕材质+线框（`--mode material --wire-overlay 0.35 --layout orbit`）、Cycles 快速渲染预览（`--mode rendered`，优先 DLSS 或显式标注 GPU OptiX 回退）与 EEVEE Next 光追对照（`--mode rendered --render-engine eevee --layout orbit`），再配标准 UV 棋盘格图与干净工程纯贴图重建对照。
 
 ### 第三步：逐梯度打分并复算成绩单
 
